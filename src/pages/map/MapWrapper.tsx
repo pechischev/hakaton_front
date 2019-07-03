@@ -10,8 +10,10 @@ import "./map.scss"
 import {FormCreator} from "./formCreator";
 import {Nullable} from "../../react-app-env";
 import {connector} from "../../connector/ApiConnector";
+import {stubObject} from "lodash";
+import {autobind} from "core-decorators";
 
-interface IItem {
+export interface IItem {
     id: number;
     address: string;
     type: string;
@@ -35,12 +37,32 @@ const mapDefaultState = {
     controls: []
 };
 
+export interface IFormContext {
+    selectedItem: IItem;
+
+    onUpdate(): void;
+    onView(): void;
+    onRemove(): void;
+}
+
+export const FormContext = React.createContext<IFormContext>(stubObject());
+
+@autobind
 export class MapWrapper extends Component<{}, IState> {
     state = {
         currentPos: [],
-        mode: EFormType.APPEND,
+        mode: EFormType.VIEW,
         items: [],
-        selectedItem: void 0,
+        selectedItem: {
+            id: 1,
+            pos: [],
+            address: "aaaa",
+            type: "aaaa",
+            square: "aaa",
+            specialization: "ss",
+            info: "asdasdd",
+            scheme_number: "6.2.153.6"
+        },
     };
 
     private popupRef: RefObject<Popup> = createRef();
@@ -66,7 +88,7 @@ export class MapWrapper extends Component<{}, IState> {
                             onClick={(event: any) => this.onMapClick(event)}
                         >
                             {!!this.state.currentPos.length && (
-                                <Placemark geometry={this.state.currentPos} />
+                                <Placemark geometry={this.state.currentPos}/>
                             )}
                             {this.state.items.map((item: IItem, index) => {
                                 return (
@@ -83,36 +105,45 @@ export class MapWrapper extends Component<{}, IState> {
                     <Sidebar/>
                 </Grid>
 
-                {showForm && (
-                    <div className="form-container">
-                        <InnerForm show={showForm} onClose={this.onCloseForm.bind(this)} title={FormCreator.getTitleForm(this.state.mode)}>
-                            {FormCreator.createForm(this.state.mode)}
-                        </InnerForm>
-                    </div>
-                )}
+                <FormContext.Provider value={{
+                    onUpdate: this.onUpdate,
+                    onView: this.onView,
+                    onRemove: this.onRemove,
+                    selectedItem: this.state.selectedItem
+                }}>
+
+                    {showForm && (
+                        <div className="form-container">
+                            <InnerForm show={showForm} onClose={this.onCloseForm.bind(this)}
+                                       title={FormCreator.getTitleForm(this.state.mode)}>
+                                {FormCreator.createForm(this.state.mode)}
+                            </InnerForm>
+                        </div>
+                    )}
+                </FormContext.Provider>
 
                 <Popup
-                    ref={ this.popupRef }
-                    title={ "Добавить стационарный объект?" }
-                    renderActions={ (props) => {
+                    ref={this.popupRef}
+                    title={"Добавить стационарный объект?"}
+                    renderActions={(props) => {
                         return (
                             <Fragment>
                                 <Button
                                     color="primary"
-                                    onClick={ () => {
+                                    onClick={() => {
                                         props.show(false);
                                         this.setState({mode: EFormType.APPEND});
                                     }}
                                 >
                                     Добавить
                                 </Button>
-                                <Button color="secondary" onClick={ () => {
+                                <Button color="secondary" onClick={() => {
                                     props.show(false);
                                     this.setState({mode: EFormType.NONE, currentPos: []});
-                                } }>Отменить</Button>
+                                }}>Отменить</Button>
                             </Fragment>
                         );
-                    } }
+                    }}
                 />
             </React.Fragment>
         )
@@ -128,5 +159,17 @@ export class MapWrapper extends Component<{}, IState> {
 
     private onCloseForm() {
         this.setState({mode: EFormType.NONE, currentPos: []});
+    }
+
+    private onUpdate() {
+        this.setState({mode: EFormType.EDIT});
+    }
+
+    private onView() {
+        this.setState({mode: EFormType.VIEW});
+    }
+
+    private onRemove() {
+        this.setState({mode: EFormType.NONE});
     }
 }

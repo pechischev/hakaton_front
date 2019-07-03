@@ -2,16 +2,18 @@ import {EFormType} from "./interfaces";
 import * as React from "react";
 import {ReactNode} from "react";
 import {AddPlacemarkForm} from "./AddPlacemarkForm";
+import {EditPlacemarkForm} from "./EditPlacemarkForm";
+import {ViewPlacemarkForm} from "./ViewPlacemarkForm";
 
 export class FormCreator {
     static createForm(type: EFormType): ReactNode {
         switch (type) {
             case EFormType.VIEW:
-                return <div/>;
+                return <ViewPlacemarkForm/>;
             case EFormType.APPEND:
                 return <AddPlacemarkForm/>;
             case EFormType.EDIT:
-                return <div/>;
+                return <EditPlacemarkForm/>;
             default:
                 return <div/>;
         }
