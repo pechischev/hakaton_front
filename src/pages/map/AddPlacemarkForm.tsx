@@ -20,8 +20,8 @@ function getFields(api: FormRenderProps<object>, submitting?: boolean): ReactNod
     return (
         <Grid container>
             <PlacemarkFields/>
-            <Grid container style={{margin: 10}}>
-                <Button disableFocusRipple={!submitting} variant="contained"
+            <Grid container style={{padding: 10, marginTop: 20}}>
+                <Button disabled={!submitting} variant="outlined"
                         onClick={() => api.handleSubmit()}>Добавить</Button>
             </Grid>
         </Grid>

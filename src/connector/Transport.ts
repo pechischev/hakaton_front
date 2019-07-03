@@ -8,7 +8,10 @@ import {UserContext} from "./AppContext";
 export class Transport<T extends object = object> {
     private static BASE_URL: string;
     private static readonly DEFAULT_URL = "http://yolamap.16mb.com";
-    private readonly client = axios.create({ baseURL: Transport.BASE_URL });
+    private readonly client = axios.create({
+        baseURL: Transport.BASE_URL,
+        withCredentials: true
+    });
     private interceptor$ = new Subject<object>();
     // tslint:disable-next-line:no-any
     private observers: Array<Nullable<(value: any) => void>> = [];
@@ -82,4 +85,27 @@ export class Transport<T extends object = object> {
         this.observers = [];
     }
 
+    getTypes(): Promise<any> {
+        return this.client.get("/point/get-types");
+    }
+
+    getSpecialization(): Promise<any> {
+        return this.client.get("/point/get-specializations");
+    }
+
+    getPoints(): Promise<any> {
+        return this.client.get("/point");
+    }
+
+    createPoint(): Promise<any> {
+        return this.client.post("/point/create");
+    }
+
+    updatePoint(id: number): Promise<any> {
+        return this.client.post("/point/update", {id})
+    }
+
+    removePoint(id: number): Promise<any> {
+        return this.client.delete("/point/delete", { params: {id}})
+    }
 }

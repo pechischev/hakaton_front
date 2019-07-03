@@ -20,13 +20,13 @@ export const EditPlacemarkForm: FC = () => {
                     render={(api: FormRenderProps<object>, submitting?: boolean) => (
                         <Grid container>
                             <PlacemarkFields/>
-                            <Grid container style={{margin: 10}}>
+                            <Grid container style={{margin: 10, marginTop: 20}}>
                                 <Grid item style={{marginRight: 10}}>
-                                    <Button disableFocusRipple={!submitting} variant="contained"
+                                    <Button disabled={!submitting} variant="outlined"
                                             onClick={() => api.handleSubmit()}>Изменить</Button>
                                 </Grid>
                                 <Grid item>
-                                    <Button variant="contained" color={"secondary"} onClick={onRemove}>Отменить</Button>
+                                    <Button variant="outlined" color={"secondary"} onClick={onRemove}>Отменить</Button>
                                 </Grid>
                             </Grid>
                         </Grid>

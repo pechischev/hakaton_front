@@ -10,7 +10,7 @@ export class UserStore extends Store {
     @observable private user?: object;
 
     isLoggedIn(): boolean {
-        return !!localStorage.getItem(UserStore.TOKENS);
+        return !!this.user;
     }
 
     getUser(): Nullable<object> {

@@ -8,10 +8,11 @@
   right: 0;
   top: 0;
   bottom: 0;
-  min-width: 550px;
+  width: 550px;
   pointer-events: all;
 
   & > div {
+    position: relative;
     height: 100vh;
   }
 }

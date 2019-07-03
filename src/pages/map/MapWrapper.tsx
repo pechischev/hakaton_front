@@ -1,6 +1,6 @@
 import * as React from "react";
 import {Component, createRef, Fragment, ReactNode, RefObject} from "react";
-import {Map, Placemark, YMaps} from "react-yandex-maps";
+import {Clusterer, Map, Placemark, SearchControl, YMaps} from "react-yandex-maps";
 import {Button, Grid} from "@material-ui/core";
 import {Sidebar} from "../../components/wrapper/Sidebar";
 import {Popup} from "../../components/popup";
@@ -9,11 +9,11 @@ import {InnerForm} from "../../components/inner-form";
 import "./map.scss"
 import {FormCreator} from "./formCreator";
 import {Nullable} from "../../react-app-env";
-import {connector} from "../../connector/ApiConnector";
-import {stubObject} from "lodash";
+import {get, stubObject} from "lodash";
 import {autobind} from "core-decorators";
 import {observer} from "mobx-react";
 import {UserContext} from "../../connector/AppContext";
+import {Store} from "../../entities/store";
 
 export interface IItem {
     id: number;
@@ -23,7 +23,8 @@ export interface IItem {
     specialization: string;
     info: string;
     scheme_number: string;
-    pos: number[];
+    positionx: number;
+    positiony: number;
 }
 
 interface IState {
@@ -40,15 +41,19 @@ const mapDefaultState = {
 };
 
 export interface IFormContext {
-    selectedItem: IItem;
+    selectedItem: Nullable<IItem>;
 
     onUpdate(): void;
+
     onView(): void;
+
     onRemove(): void;
 }
 
 
 export const FormContext = React.createContext<IFormContext>(stubObject());
+
+export const store = new Store();
 
 @observer
 @autobind
@@ -56,17 +61,18 @@ export class MapWrapper extends Component<{}, IState> {
     state = {
         currentPos: [],
         mode: EFormType.NONE,
-        items: [],
-        selectedItem: {
+        items: [{
             id: 1,
-            pos: [],
+            positionx: 56.630842,
+            positiony: 47.886089,
             address: "aaaa",
             type: "aaaa",
             square: "aaa",
             specialization: "ss",
             info: "asdasdd",
             scheme_number: "6.2.153.6"
-        },
+        }],
+        selectedItem: void 0,
     };
 
     private popupRef: RefObject<Popup> = createRef();
@@ -74,38 +80,46 @@ export class MapWrapper extends Component<{}, IState> {
     constructor(props: {}) {
         super(props);
 
-        connector.getTypes().then((res) => console.log(res));
+        store.asyncCall(store.transport.getPoints()).then((data) => {
+            const items = get(data, "data", []);
+            this.setState({items});
+        })
     }
 
     render(): ReactNode {
         const showForm = this.state.mode !== EFormType.NONE;
         return (
             <React.Fragment>
+                <YMaps query={{
+                    lang: "ru_RU",
+                    apikey: "4440a4db-1f0a-474f-9523-26d97bb3e509"
+                }}>
                 <div style={{position: "absolute", width: "100%", height: "100vh"}}>
-                    <YMaps query={{
-                        lang: "ru_RU",
-                        apikey: "4440a4db-1f0a-474f-9523-26d97bb3e509"
-                    }}>
+
                         <Map
                             defaultState={mapDefaultState}
                             style={{width: "100%", height: "100vh"}}
                             onClick={(event: any) => this.onMapClick(event)}
                         >
+                            <SearchControl options={{ float: 'right'}}/>
                             {!!this.state.currentPos.length && (
                                 <Placemark geometry={this.state.currentPos}/>
                             )}
-                            {this.state.items.map((item: IItem, index) => {
-                                return (
-                                    <Placemark key={index} geometry={item.pos} onClick={() => this.setState({
-                                        selectedItem: item,
-                                        mode: EFormType.VIEW
-                                    })}/>
-                                )
-                            })}
+                            <Clusterer>
+                                {this.state.items.map((item: IItem, index) => {
+                                    return (
+                                        <Placemark key={index} geometry={[item.positionx, item.positiony]}
+                                                   onClick={() => this.setState({
+                                                       selectedItem: item,
+                                                       mode: EFormType.VIEW
+                                                   })}/>
+                                    )
+                                })}
+                            </Clusterer>
                         </Map>
-                    </YMaps>
+
                 </div>
-                <Grid item className="sidebar-container">
+                <Grid item className="sidebar-container" xs={1}>
                     <Sidebar/>
                 </Grid>
 
@@ -134,6 +148,7 @@ export class MapWrapper extends Component<{}, IState> {
                             <Fragment>
                                 <Button
                                     color="primary"
+                                    variant="outlined"
                                     onClick={() => {
                                         props.show(false);
                                         this.setState({mode: EFormType.APPEND});
@@ -141,14 +156,18 @@ export class MapWrapper extends Component<{}, IState> {
                                 >
                                     Добавить
                                 </Button>
-                                <Button color="secondary" onClick={() => {
-                                    props.show(false);
-                                    this.setState({mode: EFormType.NONE, currentPos: []});
-                                }}>Отменить</Button>
+                                <Button
+                                    color="secondary"
+                                    variant="outlined"
+                                    onClick={() => {
+                                        props.show(false);
+                                        this.setState({mode: EFormType.NONE, currentPos: []});
+                                    }}>Отменить</Button>
                             </Fragment>
                         );
                     }}
                 />
+                </YMaps>
             </React.Fragment>
         )
     }
