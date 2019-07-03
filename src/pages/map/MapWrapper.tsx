@@ -12,6 +12,8 @@ import {Nullable} from "../../react-app-env";
 import {connector} from "../../connector/ApiConnector";
 import {stubObject} from "lodash";
 import {autobind} from "core-decorators";
+import {observer} from "mobx-react";
+import {UserContext} from "../../connector/AppContext";
 
 export interface IItem {
     id: number;
@@ -45,13 +47,15 @@ export interface IFormContext {
     onRemove(): void;
 }
 
+
 export const FormContext = React.createContext<IFormContext>(stubObject());
 
+@observer
 @autobind
 export class MapWrapper extends Component<{}, IState> {
     state = {
         currentPos: [],
-        mode: EFormType.VIEW,
+        mode: EFormType.NONE,
         items: [],
         selectedItem: {
             id: 1,
@@ -150,6 +154,13 @@ export class MapWrapper extends Component<{}, IState> {
     }
 
     private onMapClick(event: any): void {
+        if (!UserContext().isLoggedIn()) {
+            return;
+        }
+        const isEdit = this.state.mode === EFormType.EDIT || this.state.mode === EFormType.APPEND;
+        if (isEdit) {
+            return;
+        }
         this.setState({currentPos: event.get("coords")});
         const popup = this.popupRef.current;
         if (popup && !popup.isShow()) {

@@ -3,8 +3,10 @@ import {FC, Fragment} from "react";
 import {Button, Grid, Typography} from "@material-ui/core";
 import {FormContext, IFormContext} from "./MapWrapper";
 import {stubObject} from "lodash";
+import {UserContext} from "../../connector/AppContext";
+import {observer} from "mobx-react";
 
-export const ViewPlacemarkForm: FC = () => {
+export const ViewPlacemarkForm: FC = observer(() => {
     return (
         <FormContext.Consumer>
             {({onUpdate, onRemove, selectedItem = stubObject()}: IFormContext) => (
@@ -35,17 +37,19 @@ export const ViewPlacemarkForm: FC = () => {
                             <Typography display={"inline"} variant={"body2"}>{selectedItem.square}</Typography>
                         </Grid>
                     </Grid>
-                    <Grid container style={{margin: 10}}>
-                        <Grid item style={{marginRight: 10}}>
-                            <Button variant="contained" onClick={onUpdate}>Изменить</Button>
+                    {UserContext().isLoggedIn() &&
+                        <Grid container style={{margin: 10}}>
+                            <Grid item style={{marginRight: 10}}>
+                                <Button variant="contained" onClick={onUpdate}>Изменить</Button>
+                            </Grid>
+                            <Grid item>
+                                <Button variant="contained" color={"secondary"} onClick={onRemove}>Удалить</Button>
+                            </Grid>
                         </Grid>
-                        <Grid item>
-                            <Button variant="contained" color={"secondary"} onClick={onRemove}>Удалить</Button>
-                        </Grid>
-                    </Grid>
+                    }
                 </Fragment>
             )}
 
         </FormContext.Consumer>
     );
-};
+});

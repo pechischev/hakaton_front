@@ -28,7 +28,7 @@ export function getError(state: Pick<FieldRenderProps<object, HTMLElement>, "met
     if (!meta.visited || meta.active) {
         return "";
     }
-    return (meta.error || !meta.dirtySinceLastSubmit) && meta.submitError;
+    return meta.error || (!meta.dirtySinceLastSubmit && meta.submitError);
 }
 
 export function formatValue(value: string, maxLength?: number): string {

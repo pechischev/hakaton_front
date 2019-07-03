@@ -4,10 +4,12 @@ import {Divider, Drawer, IconButton, List, ListItem, ListItemIcon, ListItemText}
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import InboxIcon from "@material-ui/icons/MoveToInbox";
 import MenuIcon from "@material-ui/icons/Menu";
+import {UserContext} from "../../connector/AppContext";
+import {observer} from "mobx-react";
 
 const drawerWidth = 240;
 
-export const Sidebar: FC = () => {
+export const Sidebar: FC = observer(() => {
     const [open, setOpen] = useState(false);
 
     if (!open) {
@@ -16,7 +18,7 @@ export const Sidebar: FC = () => {
                 color="inherit"
                 aria-label="Menu"
                 onClick={() => setOpen(true)}
-                style={ {
+                style={{
                     marginLeft: 12,
                     marginRight: 20,
                 }}
@@ -44,20 +46,31 @@ export const Sidebar: FC = () => {
                 justifyContent: "flex-end",
             }}>
                 <IconButton onClick={() => setOpen(false)}>
-                    <ChevronLeftIcon />
+                    <ChevronLeftIcon/>
                 </IconButton>
             </div>
-            <Divider />
+            <Divider/>
             <List>
                 {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
                     <ListItem button={true} key={text}>
                         <ListItemIcon>
-                            <InboxIcon />
+                            <InboxIcon/>
                         </ListItemIcon>
-                        <ListItemText primary={text} />
+                        <ListItemText primary={text}/>
                     </ListItem>
                 ))}
             </List>
+            {UserContext().isLoggedIn() && (
+                <ListItem button={true} onClick={() => {
+                    UserContext().logout();
+                    setOpen(false);
+                }}>
+                    <ListItemIcon>
+                        <InboxIcon/>
+                    </ListItemIcon>
+                    <ListItemText primary={"Выйти"} />
+                </ListItem>
+            )}
         </Drawer>
     );
-};
+});

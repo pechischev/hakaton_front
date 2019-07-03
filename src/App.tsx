@@ -1,10 +1,13 @@
 import * as React from "react";
+import {Component, ReactNode} from "react";
 import {MapWrapper} from "./pages/map";
 // import Loadable, { OptionsWithoutRender } from "react-loadable";
 import {Route, Router, Switch} from "react-router";
 import {createBrowserHistory} from "history";
 // import {Loading} from "./components/loading";
 import {Login} from "./pages/login";
+import {observer, Provider} from "mobx-react";
+import {stores, UserContext} from "./connector/AppContext";
 
 /*const AsyncMap = Loadable(({
     loader: () => import("./pages/map"),
@@ -16,17 +19,27 @@ const AsyncLogin = Loadable(({
     loading: Loading,
 } as unknown) as OptionsWithoutRender<RouteComponentProps>);*/
 
-const history = createBrowserHistory();
+export const appHistory = createBrowserHistory();
 
-export const App: React.FC = () => {
-    return (
-        <Router history={history}>
-            <div className="App" style={{height: "100vh"}}>
-                <Switch>
-                    <Route path={"/map"} exac={true} component={MapWrapper}/>
-                    <Route path={"/login"} exac={true} component={Login}/>
-                </Switch>
-            </div>
-        </Router>
-    );
-};
+@observer
+export class App extends Component {
+    constructor(props: object) {
+        super(props);
+        UserContext().login();
+    }
+
+    render(): ReactNode {
+        return (
+            <Provider {...stores}>
+                <Router history={appHistory}>
+                    <div className="App" style={{height: "100vh"}}>
+                        <Switch>
+                            <Route path={"/login"} exac={true} component={Login}/>
+                            <Route path={"/"} exac={true} component={MapWrapper}/>
+                        </Switch>
+                    </div>
+                </Router>
+            </Provider>
+        );
+    }
+}
