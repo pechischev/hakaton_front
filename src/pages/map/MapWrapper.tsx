@@ -1,49 +1,96 @@
 import * as React from "react";
-import {Component, ReactNode, createRef, RefObject, Fragment} from "react";
+import {Component, createRef, Fragment, ReactNode, RefObject} from "react";
 import {Map, Placemark, YMaps} from "react-yandex-maps";
 import {Button, Grid} from "@material-ui/core";
 import {Sidebar} from "../../components/wrapper/Sidebar";
 import {Popup} from "../../components/popup";
-import {autobind} from "core-decorators";
+import {EFormType} from "./interfaces";
+import {InnerForm} from "../../components/inner-form";
+import "./map.scss"
+import {FormCreator} from "./formCreator";
 import {Nullable} from "../../react-app-env";
+import {connector} from "../../connector/ApiConnector";
 
 interface IItem {
     id: number;
-    name: string;
+    address: string;
+    type: string;
+    square: string;
+    specialization: string;
+    info: string;
+    scheme_number: string;
     pos: number[];
 }
 
-@autobind
-export class MapWrapper extends Component {
-    private items: IItem[] = [];
+interface IState {
+    currentPos: number[];
+    mode: EFormType;
+    items: IItem[];
+    selectedItem: Nullable<IItem>;
+}
+
+const mapDefaultState = {
+    center: [56.630842, 47.886089],
+    zoom: 16,
+    controls: []
+};
+
+export class MapWrapper extends Component<{}, IState> {
+    state = {
+        currentPos: [],
+        mode: EFormType.APPEND,
+        items: [],
+        selectedItem: void 0,
+    };
 
     private popupRef: RefObject<Popup> = createRef();
-    private currentPos: number[] = [];
+
+    constructor(props: {}) {
+        super(props);
+
+        connector.getTypes().then((res) => console.log(res));
+    }
 
     render(): ReactNode {
+        const showForm = this.state.mode !== EFormType.NONE;
         return (
             <React.Fragment>
-                <div style={{position: "absolute", width: "100%", height: "100%"}}>
-                    <YMaps>
+                <div style={{position: "absolute", width: "100%", height: "100vh"}}>
+                    <YMaps query={{
+                        lang: "ru_RU",
+                        apikey: "4440a4db-1f0a-474f-9523-26d97bb3e509"
+                    }}>
                         <Map
-                            defaultState={{center: [56.630842, 47.886089], zoom: 16, controls: []}}
-                            style={{width: "100%", height: "100%"}}
-                            onClick={this.onMapClick}
+                            defaultState={mapDefaultState}
+                            style={{width: "100%", height: "100vh"}}
+                            onClick={(event: any) => this.onMapClick(event)}
                         >
-                            {this.items.map((item, index) => {
+                            {!!this.state.currentPos.length && (
+                                <Placemark geometry={this.state.currentPos} />
+                            )}
+                            {this.state.items.map((item: IItem, index) => {
                                 return (
-                                    <Placemark key={index} geometry={item.pos}/>
+                                    <Placemark key={index} geometry={item.pos} onClick={() => this.setState({
+                                        selectedItem: item,
+                                        mode: EFormType.VIEW
+                                    })}/>
                                 )
                             })}
                         </Map>
                     </YMaps>
                 </div>
-                <Grid container style={{position: "relative"}}>
-                    <Grid item>
-                        <Sidebar/>
-                    </Grid>
-                    <Grid item/>
+                <Grid item className="sidebar-container">
+                    <Sidebar/>
                 </Grid>
+
+                {showForm && (
+                    <div className="form-container">
+                        <InnerForm show={showForm} onClose={this.onCloseForm.bind(this)} title={FormCreator.getTitleForm(this.state.mode)}>
+                            {FormCreator.createForm(this.state.mode)}
+                        </InnerForm>
+                    </div>
+                )}
+
                 <Popup
                     ref={ this.popupRef }
                     title={ "Добавить стационарный объект?" }
@@ -54,12 +101,15 @@ export class MapWrapper extends Component {
                                     color="primary"
                                     onClick={ () => {
                                         props.show(false);
-                                        // this.setState({mode: EFormType.APPEND});
-                                    } }
+                                        this.setState({mode: EFormType.APPEND});
+                                    }}
                                 >
                                     Добавить
                                 </Button>
-                                <Button color="secondary" onClick={ () => props.show(false) }>Отменить</Button>
+                                <Button color="secondary" onClick={ () => {
+                                    props.show(false);
+                                    this.setState({mode: EFormType.NONE, currentPos: []});
+                                } }>Отменить</Button>
                             </Fragment>
                         );
                     } }
@@ -69,10 +119,14 @@ export class MapWrapper extends Component {
     }
 
     private onMapClick(event: any): void {
-        this.currentPos = event.get("coords");
+        this.setState({currentPos: event.get("coords")});
         const popup = this.popupRef.current;
         if (popup && !popup.isShow()) {
             popup.open();
         }
+    }
+
+    private onCloseForm() {
+        this.setState({mode: EFormType.NONE, currentPos: []});
     }
 }

@@ -1,0 +1,17 @@
+.sidebar-container {
+  position: relative;
+  pointer-events: all;
+}
+
+.form-container {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  min-width: 550px;
+  pointer-events: all;
+
+  & > div {
+    height: 100vh;
+  }
+}

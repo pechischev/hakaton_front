@@ -83,7 +83,7 @@ export class CustomForm<T extends object> extends Component<ICustomFormProps<T>>
     private onValidate(formData: object): object | Promise<object> {
         let errors = {};
         const {validate, validateData} = this.props;
-        const requiredFields = validateData && validateData(formData) || [];
+        const requiredFields = (validateData && validateData(formData)) || [];
         for (const field of requiredFields) {
             const value = get(formData, field.type);
             const codes = field.codes;
