@@ -97,15 +97,15 @@ export class Transport<T extends object = object> {
         return this.client.get("/point");
     }
 
-    createPoint(): Promise<any> {
-        return this.client.post("/point/create");
+    createPoint(data: any): Promise<any> {
+        return this.client.post("/point/create", data);
     }
 
-    updatePoint(id: number): Promise<any> {
-        return this.client.post("/point/update", {id})
+    updatePoint(id: number, data: any): Promise<any> {
+        return this.client.put(`/point/update?id=${id}`, data)
     }
 
     removePoint(id: number): Promise<any> {
-        return this.client.delete("/point/delete", { params: {id}})
+        return this.client.delete(`/point/delete?id=${id}`)
     }
 }

@@ -1,21 +1,16 @@
 import * as React from "react";
 import {Component, ReactNode} from "react";
 import {Grid} from "@material-ui/core";
-import {InputField, ISelectOption, SelectField} from "../../components/fields";
+import {InputField, SelectField} from "../../components/fields";
+import {InfoContext} from "../../connector/AppContext";
 
 export class PlacemarkFields extends Component {
-    private types: ISelectOption[] = [];
-    private specializations: ISelectOption[] = [];
-
-    constructor(props: {}) {
-        super(props);
-    }
 
     render(): ReactNode {
         return (
             <Grid container>
-                <SelectField name={"type"} label={"Тип точки"} options={this.types}/>
-                <SelectField name={"specialization"} label={"Вид специализации"} options={this.specializations}/>
+                <SelectField name={"type"} label={"Тип точки"} options={InfoContext().getOptionTypes()}/>
+                <SelectField name={"specialization"} label={"Вид специализации"} options={InfoContext().getOptionSpecializations()}/>
                 <InputField name={"info_number"} label={"Номер документа"}/>
                 <InputField name={"info_action"} label={"Срок действия"}/>
                 <InputField name={"scheme_number"} label={"Номер в схеме"}/>

@@ -9,29 +9,24 @@ import {InnerForm} from "../../components/inner-form";
 import "./map.scss"
 import {FormCreator} from "./formCreator";
 import {Nullable} from "../../react-app-env";
-import {get, stubObject} from "lodash";
+import {stubObject} from "lodash";
 import {autobind} from "core-decorators";
 import {observer} from "mobx-react";
-import {UserContext} from "../../connector/AppContext";
-import {Store} from "../../entities/store";
+import {InfoContext, UserContext} from "../../connector/AppContext";
+import {MapStore} from "./MapStore";
 
 export interface IItem {
     id: number;
     address: string;
-    type: string;
+    type: number;
     square: string;
-    specialization: string;
-    info: string;
+    specialization: number;
+    info_number: string;
+    info_action: string;
     scheme_number: string;
+    status: number;
     positionx: number;
     positiony: number;
-}
-
-interface IState {
-    currentPos: number[];
-    mode: EFormType;
-    items: IItem[];
-    selectedItem: Nullable<IItem>;
 }
 
 const mapDefaultState = {
@@ -42,6 +37,7 @@ const mapDefaultState = {
 
 export interface IFormContext {
     selectedItem: Nullable<IItem>;
+    store: MapStore;
 
     onUpdate(): void;
 
@@ -53,120 +49,104 @@ export interface IFormContext {
 
 export const FormContext = React.createContext<IFormContext>(stubObject());
 
-export const store = new Store();
-
 @observer
 @autobind
-export class MapWrapper extends Component<{}, IState> {
-    state = {
-        currentPos: [],
-        mode: EFormType.NONE,
-        items: [{
-            id: 1,
-            positionx: 56.630842,
-            positiony: 47.886089,
-            address: "aaaa",
-            type: "aaaa",
-            square: "aaa",
-            specialization: "ss",
-            info: "asdasdd",
-            scheme_number: "6.2.153.6"
-        }],
-        selectedItem: void 0,
-    };
+export class MapWrapper extends Component<{}> {
 
     private popupRef: RefObject<Popup> = createRef();
+    private readonly store = new MapStore();
 
     constructor(props: {}) {
         super(props);
 
-        store.asyncCall(store.transport.getPoints()).then((data) => {
-            const items = get(data, "data", []);
-            this.setState({items});
-        })
+        this.store.getPoints();
+        InfoContext().getSpecializations();
+        InfoContext().getTypes();
     }
 
     render(): ReactNode {
-        const showForm = this.state.mode !== EFormType.NONE;
+        const showForm = this.store.mode !== EFormType.NONE;
         return (
             <React.Fragment>
                 <YMaps query={{
                     lang: "ru_RU",
                     apikey: "4440a4db-1f0a-474f-9523-26d97bb3e509"
                 }}>
-                <div style={{position: "absolute", width: "100%", height: "100vh"}}>
+                    <div style={{position: "absolute", width: "100%", height: "100vh"}}>
 
                         <Map
                             defaultState={mapDefaultState}
                             style={{width: "100%", height: "100vh"}}
                             onClick={(event: any) => this.onMapClick(event)}
                         >
-                            <SearchControl options={{ float: 'right'}}/>
-                            {!!this.state.currentPos.length && (
-                                <Placemark geometry={this.state.currentPos}/>
+                            <SearchControl options={{float: 'right'}}/>
+                            {!!this.store.curPos.length && (
+                                <Placemark geometry={this.store.curPos}/>
                             )}
                             <Clusterer>
-                                {this.state.items.map((item: IItem, index) => {
+                                {this.store.items.map((item: IItem, index) => {
                                     return (
                                         <Placemark key={index} geometry={[item.positionx, item.positiony]}
-                                                   onClick={() => this.setState({
-                                                       selectedItem: item,
-                                                       mode: EFormType.VIEW
-                                                   })}/>
+                                                   onClick={() => {
+                                                       this.store.selectItem(item);
+                                                       this.store.setMode(EFormType.VIEW)
+                                                   }}/>
                                     )
                                 })}
                             </Clusterer>
                         </Map>
 
-                </div>
-                <Grid item className="sidebar-container" xs={1}>
-                    <Sidebar/>
-                </Grid>
+                    </div>
+                    <Grid item className="sidebar-container" xs={1}>
+                        <Sidebar/>
+                    </Grid>
 
-                <FormContext.Provider value={{
-                    onUpdate: this.onUpdate,
-                    onView: this.onView,
-                    onRemove: this.onRemove,
-                    selectedItem: this.state.selectedItem
-                }}>
+                    <FormContext.Provider value={{
+                        onUpdate: this.onUpdate,
+                        onView: this.onView,
+                        onRemove: this.onRemove,
+                        selectedItem: this.store.selectedItem,
+                        store: this.store
+                    }}>
 
-                    {showForm && (
-                        <div className="form-container">
-                            <InnerForm show={showForm} onClose={this.onCloseForm.bind(this)}
-                                       title={FormCreator.getTitleForm(this.state.mode)}>
-                                {FormCreator.createForm(this.state.mode)}
-                            </InnerForm>
-                        </div>
-                    )}
-                </FormContext.Provider>
+                        {showForm && (
+                            <div className="form-container">
+                                <InnerForm show={showForm} onClose={this.onCloseForm.bind(this)}
+                                           title={FormCreator.getTitleForm(this.store.mode)}>
+                                    {FormCreator.createForm(this.store.mode)}
+                                </InnerForm>
+                            </div>
+                        )}
+                    </FormContext.Provider>
 
-                <Popup
-                    ref={this.popupRef}
-                    title={"Добавить стационарный объект?"}
-                    renderActions={(props) => {
-                        return (
-                            <Fragment>
-                                <Button
-                                    color="primary"
-                                    variant="outlined"
-                                    onClick={() => {
-                                        props.show(false);
-                                        this.setState({mode: EFormType.APPEND});
-                                    }}
-                                >
-                                    Добавить
-                                </Button>
-                                <Button
-                                    color="secondary"
-                                    variant="outlined"
-                                    onClick={() => {
-                                        props.show(false);
-                                        this.setState({mode: EFormType.NONE, currentPos: []});
-                                    }}>Отменить</Button>
-                            </Fragment>
-                        );
-                    }}
-                />
+                    <Popup
+                        ref={this.popupRef}
+                        title={"Добавить стационарный объект?"}
+                        renderActions={(props) => {
+                            return (
+                                <Fragment>
+                                    <Button
+                                        color="primary"
+                                        variant="outlined"
+                                        onClick={() => {
+                                            props.show(false);
+                                            this.store.setMode(EFormType.APPEND);
+                                        }}
+                                    >
+                                        Добавить
+                                    </Button>
+                                    <Button
+                                        color="secondary"
+                                        variant="outlined"
+                                        onClick={() => {
+                                            props.show(false);
+                                            this.store.setMode(EFormType.NONE);
+                                            this.store.setCurPos([]);
+                                        }}>Отменить</Button>
+                                </Fragment>
+                            );
+                        }}
+                    />
                 </YMaps>
             </React.Fragment>
         )
@@ -176,11 +156,11 @@ export class MapWrapper extends Component<{}, IState> {
         if (!UserContext().isLoggedIn()) {
             return;
         }
-        const isEdit = this.state.mode === EFormType.EDIT || this.state.mode === EFormType.APPEND;
+        const isEdit = this.store.mode === EFormType.EDIT || this.store.mode === EFormType.APPEND;
         if (isEdit) {
             return;
         }
-        this.setState({currentPos: event.get("coords")});
+        this.store.setCurPos(event.get("coords"));
         const popup = this.popupRef.current;
         if (popup && !popup.isShow()) {
             popup.open();
@@ -188,18 +168,19 @@ export class MapWrapper extends Component<{}, IState> {
     }
 
     private onCloseForm() {
-        this.setState({mode: EFormType.NONE, currentPos: []});
+        this.store.setMode(EFormType.NONE);
+        this.store.setCurPos([]);
     }
 
     private onUpdate() {
-        this.setState({mode: EFormType.EDIT});
+        this.store.setMode(EFormType.EDIT);
     }
 
     private onView() {
-        this.setState({mode: EFormType.VIEW});
+        this.store.setMode(EFormType.VIEW);
     }
 
     private onRemove() {
-        this.setState({mode: EFormType.NONE});
+        this.store.setMode(EFormType.NONE);
     }
 }

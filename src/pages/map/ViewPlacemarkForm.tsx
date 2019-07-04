@@ -3,7 +3,7 @@ import {FC, Fragment} from "react";
 import {Button, Grid, Typography} from "@material-ui/core";
 import {FormContext, IFormContext} from "./MapWrapper";
 import {stubObject} from "lodash";
-import {UserContext} from "../../connector/AppContext";
+import {InfoContext, UserContext} from "../../connector/AppContext";
 import {observer} from "mobx-react";
 
 export const ViewPlacemarkForm: FC = observer(() => {
@@ -13,20 +13,24 @@ export const ViewPlacemarkForm: FC = observer(() => {
                 <Fragment>
                     <Grid container direction={"column"}>
                         <Grid item style={{margin: 10}}>
+                            <Typography display={"inline"} variant={"body1"}>Адрес: </Typography>
+                            <Typography display={"inline"} variant={"body1"}>{selectedItem.address}</Typography>
+                        </Grid>
+                        <Grid item style={{margin: 10}}>
                             <Typography display={"inline"} variant={"body1"}>Тип точки: </Typography>
-                            <Typography display={"inline"} variant={"body1"}>{selectedItem.type}</Typography>
+                            <Typography display={"inline"} variant={"body1"}>{getTypeTitle(selectedItem.type)}</Typography>
                         </Grid>
                         <Grid item style={{margin: 10}}>
                             <Typography display={"inline"} variant={"body1"}>Вид специализации: </Typography>
-                            <Typography display={"inline"} variant={"body1"}>{selectedItem.specialization}</Typography>
+                            <Typography display={"inline"} variant={"body1"}>{getSpecializationTitle(selectedItem.specialization)}</Typography>
                         </Grid>
                         <Grid item style={{margin: 10}}>
                             <Typography display={"inline"} variant={"body1"}>Номер документа: </Typography>
-                            <Typography display={"inline"} variant={"body1"}>{selectedItem.info}</Typography>
+                            <Typography display={"inline"} variant={"body1"}>{selectedItem.info_number}</Typography>
                         </Grid>
                         <Grid item style={{margin: 10}}>
                             <Typography display={"inline"} variant={"body1"}>Срок действия: </Typography>
-                            <Typography display={"inline"} variant={"body1"}>{selectedItem.info}</Typography>
+                            <Typography display={"inline"} variant={"body1"}>{selectedItem.info_action}</Typography>
                         </Grid>
                         <Grid item style={{margin: 10}}>
                             <Typography display={"inline"} variant={"body1"}>Номер в схеме: </Typography>
@@ -53,3 +57,21 @@ export const ViewPlacemarkForm: FC = observer(() => {
         </FormContext.Consumer>
     );
 });
+
+function getTypeTitle(id: number): string {
+    const types = InfoContext().types;
+    const type = types.find((value) => value.id === id);
+    if (type) {
+        return type.title;
+    }
+    return "";
+}
+
+function getSpecializationTitle(id: number): string {
+    const specializations = InfoContext().specializations;
+    const specialization = specializations.find((value) => value.id === id);
+    if (specialization) {
+        return specialization.title;
+    }
+    return "";
+}

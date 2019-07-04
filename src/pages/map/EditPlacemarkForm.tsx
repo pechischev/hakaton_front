@@ -11,10 +11,10 @@ import {stubObject} from "lodash";
 export const EditPlacemarkForm: FC = () => {
     return (
         <FormContext.Consumer>
-            {({onUpdate, onRemove, selectedItem = stubObject()}: IFormContext) => (
+            {({onUpdate, onRemove, selectedItem = stubObject(), store}: IFormContext) => (
                 <CustomForm
                     submit={(data) => {
-                        console.log(data);
+                        store.editPoint(data);
                     }}
                     data={transformData(selectedItem)}
                     render={(api: FormRenderProps<object>, submitting?: boolean) => (

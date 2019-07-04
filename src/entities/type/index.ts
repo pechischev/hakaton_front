@@ -3,3 +3,5 @@ export interface IType {
     title: string;
     icon: string
 }
+
+export * from "./InfoStore";

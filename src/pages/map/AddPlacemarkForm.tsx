@@ -4,15 +4,18 @@ import {ReactNode} from "react";
 import {FormRenderProps} from "react-final-form";
 import {Button, Grid} from "@material-ui/core";
 import {PlacemarkFields} from "./PlacemarkFields";
+import {FormContext, IFormContext} from "./MapWrapper";
 
 export const AddPlacemarkForm = () => {
     return (
-        <CustomForm
-            submit={(data) => {
-                console.log(data);
-            }}
-            render={getFields}
-        />
+        <FormContext.Consumer>
+            {({store}: IFormContext) => (
+                <CustomForm
+                    submit={(data) => store.createPoint(data)}
+                    render={getFields}
+                />
+            )}
+        </FormContext.Consumer>
     );
 };
 
