@@ -13,6 +13,12 @@ export class MapStore extends Store {
 
     @observable filterTypes: number[] = [];
     @observable filterSpecializations: number[] = [];
+    @observable status: number[] = [0, 1];
+
+    @action.bound
+    setStatuses(types: number[]) {
+        this.status = types;
+    }
 
     @action.bound
     setTypes(types: number[]) {
@@ -31,6 +37,9 @@ export class MapStore extends Store {
             })
             .filter((item) => {
                 return !!(~this.filterSpecializations.indexOf(item.specialization));
+            })
+            .filter((item) => {
+                return !!(~this.status.indexOf(item.status));
             })
     }
 

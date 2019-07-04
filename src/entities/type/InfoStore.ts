@@ -27,6 +27,22 @@ export class InfoStore extends Store {
         return this.specializations.map(({id, title}) => ({id, label: title}));
     }
 
+    getPointColor(id: number): string {
+        const item = this.specializations.find((value) => value.id === id);
+        if (!item) {
+            return "#000000";
+        }
+        return item.colour;
+    }
+
+    getPointIcon(id: number): string {
+        const item = this.types.find((value) => value.id === id);
+        if (!item) {
+            return "circle";
+        }
+        return item.icon;
+    }
+
     @action.bound
     private onGetTypes(response: AxiosResponse<IType[]>) {
         console.info("[InfoStore.onGetTypes]", response);

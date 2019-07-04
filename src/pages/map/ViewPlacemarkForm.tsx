@@ -40,6 +40,10 @@ export const ViewPlacemarkForm: FC = observer(() => {
                             <Typography display={"inline"} variant={"body1"}>Площадь: </Typography>
                             <Typography display={"inline"} variant={"body1"}>{selectedItem.square}</Typography>
                         </Grid>
+                        <Grid item style={{margin: 10}}>
+                            <Typography display={"inline"} variant={"body1"}>Статус объекта: </Typography>
+                            <Typography display={"inline"} variant={"body1"}>{selectedItem.status == 1 ? "Занято" : "Свободно"}</Typography>
+                        </Grid>
                     </Grid>
                     {UserContext().isLoggedIn() &&
                         <Grid container style={{margin: 10, marginTop: 20}}>

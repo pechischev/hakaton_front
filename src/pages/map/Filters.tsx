@@ -6,8 +6,8 @@ import {ExpandLess, ExpandMore} from "@material-ui/icons";
 import {InfoContext} from "../../connector/AppContext";
 import {IType} from "../../entities/type";
 import {ISpecialization} from "../../entities/specialization";
-import {get} from "lodash";
 import {MapStore} from "./MapStore";
+import {ISelectOption} from "../../components/fields";
 
 interface IFiltersProps {
     store: MapStore;
@@ -15,16 +15,21 @@ interface IFiltersProps {
 
 export const Filters: FC<IFiltersProps> = observer(({store}) => {
     const [open, setOpen] = React.useState({
-        type: true,
-        specialization: true,
+        type: false,
+        specialization: false,
+        status: true
     });
 
     function handleTypeClick() {
-        setOpen({type: !open.type, specialization: open.specialization});
+        setOpen({...open, type: !open.type});
     }
 
     function handleSpecializationClick() {
-        setOpen({type: open.type, specialization: !open.specialization});
+        setOpen({...open, specialization: !open.specialization});
+    }
+
+    function handleStatusClick() {
+        setOpen({...open, status: !open.status});
     }
 
     const changeTypesFilter = (value: number) => {
@@ -37,17 +42,9 @@ export const Filters: FC<IFiltersProps> = observer(({store}) => {
         store.setSpecializations(values)
     };
 
-    const handleToggle = (value: number, values: number[]) => {
-        const currentIndex = values.indexOf(value);
-        const newChecked = [...values];
-
-        if (currentIndex === -1) {
-            newChecked.push(value);
-        } else {
-            newChecked.splice(currentIndex, 1);
-        }
-
-        return newChecked;
+    const changeStatusFilter = (value: number) => {
+        const values = handleToggle(value, store.status);
+        store.setStatuses(values)
     };
 
     return (
@@ -74,7 +71,6 @@ export const Filters: FC<IFiltersProps> = observer(({store}) => {
                                     </ListItemIcon>
                                     <ListItemText primary={type.title}/>
                                 </ListItem>
-
                             ))
                         }
                     </List>
@@ -105,7 +101,46 @@ export const Filters: FC<IFiltersProps> = observer(({store}) => {
                         }
                     </List>
                 </Collapse>
+                <ListItem button onClick={handleStatusClick}>
+                    <ListItemText primary="Статусы объектов"/>
+                    {open.status ? <ExpandLess/> : <ExpandMore/>}
+                </ListItem>
+                <Collapse in={open.status} timeout="auto" unmountOnExit>
+                    <List component="div" disablePadding>
+                        {
+                            [{id: 0, label: "Свободно"}, {id: 1, label: "Занято"}]
+                                .map((value: ISelectOption, index) => (
+                                    <ListItem key={index} role={undefined} button dense
+                                              onClick={() => changeStatusFilter(value.id)}>
+                                        <ListItemIcon>
+                                            <Checkbox
+                                                color={"primary"}
+                                                edge="start"
+                                                checked={!!~store.status!.indexOf(value.id)}
+                                                tabIndex={-1}
+                                                disableRipple
+                                            />
+                                        </ListItemIcon>
+                                        <ListItemText primary={value.label}/>
+                                    </ListItem>
+                                ))
+                        }
+                    </List>
+                </Collapse>
             </Paper>
         </div>
     )
 });
+
+const handleToggle = (value: number, values: number[]) => {
+    const currentIndex = values.indexOf(value);
+    const newChecked = [...values];
+
+    if (currentIndex === -1) {
+        newChecked.push(value);
+    } else {
+        newChecked.splice(currentIndex, 1);
+    }
+
+    return newChecked;
+};

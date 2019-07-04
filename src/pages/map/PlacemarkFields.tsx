@@ -15,6 +15,10 @@ export class PlacemarkFields extends Component {
                 <InputField name={"info_action"} label={"Срок действия"}/>
                 <InputField name={"scheme_number"} label={"Номер в схеме"}/>
                 <InputField name={"square"} label={"Площадь"}/>
+                <SelectField name={"status"} label={"Статус объекта"} options={[
+                    {id: 0, label: "Свободно"},
+                    {id: 1, label: "Занято"},
+                ]}/>
             </Grid>
         );
     }

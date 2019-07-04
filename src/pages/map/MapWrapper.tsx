@@ -90,11 +90,17 @@ export class MapWrapper extends Component<{}> {
                             <Clusterer>
                                 {this.store.getItems().map((item: IItem, index) => {
                                     return (
-                                        <Placemark key={index} geometry={[item.positionx, item.positiony]}
-                                                   onClick={() => {
-                                                       this.store.selectItem(item);
-                                                       this.store.setMode(EFormType.VIEW)
-                                                   }}/>
+                                        <Placemark
+                                            key={index} geometry={[item.positionx, item.positiony]}
+                                            onClick={() => {
+                                                this.store.selectItem(item);
+                                                this.store.setMode(EFormType.VIEW)
+                                            }}
+                                            options={{
+                                                preset: 'islands#circleIcon',
+                                                iconColor: InfoContext().getPointColor(item.specialization),
+                                            }}
+                                        />
                                     )
                                 })}
                             </Clusterer>
