@@ -54,6 +54,7 @@ export const FormContext = React.createContext<IFormContext>(stubObject());
 export class MapWrapper extends Component<{}> {
 
     private popupRef: RefObject<Popup> = createRef();
+    private confirmRef: RefObject<Popup> = createRef();
     private readonly store = new MapStore();
 
     constructor(props: {}) {
@@ -147,6 +148,34 @@ export class MapWrapper extends Component<{}> {
                             );
                         }}
                     />
+                    <Popup
+                        ref={this.confirmRef}
+                        title={"Вы действительно хотите удалить объект?"}
+                        renderActions={(props) => {
+                            return (
+                                <Fragment>
+                                    <Button
+                                        color="secondary"
+                                        variant="outlined"
+                                        onClick={() => {
+                                            props.show(false);
+                                            this.store.setMode(EFormType.NONE);
+                                            this.store.removePoint();
+                                        }}
+                                    >
+                                        Да
+                                    </Button>
+                                    <Button
+                                        variant="outlined"
+                                        onClick={() => {
+                                            props.show(false);
+                                            this.store.setMode(EFormType.NONE);
+                                            this.store.selectItem(void 0);
+                                        }}>Нет</Button>
+                                </Fragment>
+                            );
+                        }}
+                    />
                 </YMaps>
             </React.Fragment>
         )
@@ -156,8 +185,8 @@ export class MapWrapper extends Component<{}> {
         if (!UserContext().isLoggedIn()) {
             return;
         }
-        const isEdit = this.store.mode === EFormType.EDIT || this.store.mode === EFormType.APPEND;
-        if (isEdit) {
+        const isUsed = this.store.mode !== EFormType.NONE;
+        if (isUsed) {
             return;
         }
         this.store.setCurPos(event.get("coords"));
@@ -181,6 +210,9 @@ export class MapWrapper extends Component<{}> {
     }
 
     private onRemove() {
-        this.store.setMode(EFormType.NONE);
+        const confirmRef = this.confirmRef.current;
+        if (confirmRef && !confirmRef.isShow()) {
+            confirmRef.open();
+        }
     }
 }

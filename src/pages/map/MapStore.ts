@@ -45,6 +45,11 @@ export class MapStore extends Store {
         this.items = [...this.items, ...items];
     }
 
+    @action.bound
+    changeItems(items: IItem[]) {
+        this.items = items;
+    }
+
     getPoints() {
         this.asyncCall(this.transport.getPoints()).then((data) => {
             const items = get(data, "data", []);
@@ -78,7 +83,7 @@ export class MapStore extends Store {
                 console.info("[MapStore.editPoint]", response);
                 const item = get(response, "data");
                 const items = this.items.filter((value) => item.id !== value.id);
-                this.setItems([...items, item]);
+                this.changeItems([...items, item]);
                 this.selectItem(item);
             })
             .then(() => this.setMode(EFormType.VIEW))
@@ -89,6 +94,9 @@ export class MapStore extends Store {
             return;
         }
         this.asyncCall(this.transport.removePoint(this.selectedItem.id))
-            .then(() => this.setMode(EFormType.NONE))
+            .then(() => {
+                this.setMode(EFormType.NONE);
+                this.selectItem(void 0);
+            })
     }
 }
