@@ -11,12 +11,12 @@ export class InfoStore extends Store {
     @observable types: IType[] = [];
     @observable specializations: ISpecialization[] = [];
 
-    getTypes() {
-        this.call(this.transport.getTypes(), this.onGetTypes, this.onError)
+    async getTypes() {
+        return this.asyncCall(this.transport.getTypes()).then(this.onGetTypes);
     }
 
-    getSpecializations() {
-        this.call(this.transport.getSpecialization(), this.onGetSpecializations, this.onError)
+    async getSpecializations() {
+        return this.asyncCall(this.transport.getSpecialization()).then(this.onGetSpecializations);
     }
 
     getOptionTypes(): ISelectOption[] {

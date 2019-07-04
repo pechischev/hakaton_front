@@ -51,8 +51,8 @@ export const Sidebar: FC = observer(() => {
             </div>
             <Divider/>
             <List>
-                {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
-                    <ListItem button={true} key={text}>
+                {["Контакты"].map((text, index) => (
+                    <ListItem button={true} key={index}>
                         <ListItemIcon>
                             <InboxIcon/>
                         </ListItemIcon>

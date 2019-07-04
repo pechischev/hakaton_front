@@ -6,24 +6,33 @@ import {EFormType} from "./interfaces";
 import {Nullable} from "../../react-app-env";
 
 export class MapStore extends Store {
-    @observable items: IItem[] = [
-        {
-            id: 1,
-            status: 1,
-            positionx: 56.630842,
-            positiony: 47.886089,
-            address: "aaaa",
-            type: 1,
-            square: "aaa",
-            specialization: 2,
-            info_action: "asdasdd",
-            info_number: "1111",
-            scheme_number: "6.2.153.6"
-        }
-    ];
+    @observable items: IItem[] = [];
     @observable mode: EFormType = EFormType.NONE;
     @observable selectedItem: Nullable<IItem> = void 0;
     @observable curPos: number[] = [];
+
+    @observable filterTypes: number[] = [];
+    @observable filterSpecializations: number[] = [];
+
+    @action.bound
+    setTypes(types: number[]) {
+        this.filterTypes = types;
+    }
+
+    @action.bound
+    setSpecializations(values: number[]) {
+        this.filterSpecializations = values;
+    }
+
+    getItems(): IItem[] {
+        return this.items
+            .filter((item) => {
+                return !!(~this.filterTypes.indexOf(item.type));
+            })
+            .filter((item) => {
+                return !!(~this.filterSpecializations.indexOf(item.specialization));
+            })
+    }
 
     @action.bound
     setCurPos(pos: number[]) {

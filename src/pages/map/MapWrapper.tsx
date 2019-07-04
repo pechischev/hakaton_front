@@ -14,6 +14,7 @@ import {autobind} from "core-decorators";
 import {observer} from "mobx-react";
 import {InfoContext, UserContext} from "../../connector/AppContext";
 import {MapStore} from "./MapStore";
+import {Filters} from "./Filters";
 
 export interface IItem {
     id: number;
@@ -61,8 +62,10 @@ export class MapWrapper extends Component<{}> {
         super(props);
 
         this.store.getPoints();
-        InfoContext().getSpecializations();
-        InfoContext().getTypes();
+        InfoContext().getSpecializations()
+            .then(() => this.store.setSpecializations(InfoContext().specializations.map(({id}) => id)));
+        InfoContext().getTypes()
+            .then(() => this.store.setTypes(InfoContext().types.map(({id}) => id)));
     }
 
     render(): ReactNode {
@@ -85,7 +88,7 @@ export class MapWrapper extends Component<{}> {
                                 <Placemark geometry={this.store.curPos}/>
                             )}
                             <Clusterer>
-                                {this.store.items.map((item: IItem, index) => {
+                                {this.store.getItems().map((item: IItem, index) => {
                                     return (
                                         <Placemark key={index} geometry={[item.positionx, item.positiony]}
                                                    onClick={() => {
@@ -110,6 +113,7 @@ export class MapWrapper extends Component<{}> {
                         store: this.store
                     }}>
 
+                        <Filters store={this.store}/>
                         {showForm && (
                             <div className="form-container">
                                 <InnerForm show={showForm} onClose={this.onCloseForm.bind(this)}
