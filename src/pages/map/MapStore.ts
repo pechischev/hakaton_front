@@ -90,12 +90,14 @@ export class MapStore extends Store {
     }
 
     removePoint() {
-        if (!this.selectedItem) {
+        const selectedItem = this.selectedItem;
+        if (!selectedItem) {
             return;
         }
-        this.asyncCall(this.transport.removePoint(this.selectedItem.id))
+        this.asyncCall(this.transport.removePoint(selectedItem.id))
             .then(() => {
-                this.setMode(EFormType.NONE);
+                const items = this.items.filter((value) => selectedItem.id !== value.id);
+                this.changeItems(items);
                 this.selectItem(void 0);
             })
     }
