@@ -7,7 +7,7 @@ import {UserContext} from "./AppContext";
 
 export class Transport<T extends object = object> {
     private static BASE_URL: string;
-    private static readonly DEFAULT_URL = "http://yolamap.16mb.com";
+    private static readonly DEFAULT_URL = "http://yola.space";
     private readonly client = axios.create({
         baseURL: Transport.BASE_URL,
         withCredentials: true

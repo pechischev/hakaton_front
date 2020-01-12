@@ -1,6 +1,6 @@
 import * as React from "react";
 import {Component, createRef, Fragment, ReactNode, RefObject} from "react";
-import {Clusterer, Map, Placemark, SearchControl, YMaps} from "react-yandex-maps";
+import {Clusterer, Map, Placemark, RulerControl, SearchControl, YMaps} from "react-yandex-maps";
 import {Button, Grid} from "@material-ui/core";
 import {Sidebar} from "../../components/wrapper/Sidebar";
 import {Popup} from "../../components/popup";
@@ -84,6 +84,7 @@ export class MapWrapper extends Component<{}> {
                             onClick={(event: any) => this.onMapClick(event)}
                         >
                             <SearchControl options={{float: 'right'}}/>
+                            <RulerControl options={{ float: 'right' }} />
                             {!!this.store.curPos.length && (
                                 <Placemark geometry={this.store.curPos}/>
                             )}
