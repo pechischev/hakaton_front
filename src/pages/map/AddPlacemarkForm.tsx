@@ -23,7 +23,6 @@ export const AddPlacemarkForm = () => {
 };
 
 function getFields(api: FormRenderProps<object>, submitting: boolean = false, open: boolean, setOpen: any): ReactNode {
-    console.log((api.form.getState().values  as any).images)
     return (
         <Grid container>
             <PlacemarkFields/>

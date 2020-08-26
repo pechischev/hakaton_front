@@ -72,14 +72,7 @@ export class MapStore extends Store {
     getPoints() {
         this.asyncCall(this.transport.getPoints()).then((data) => {
             const items = get(data, "data", []);
-            this.setItems(items.map((item: object) => {
-                const {images = {}, ...rest} = (item as any)
-                const layers = images ? images.map((image: any, index: number) => new LayerData(image.url, `${index}`, image.title)) : []
-                return {
-                    ...rest,
-                    images: layers
-                }
-            }));
+            this.setItems(items.map(this.convertPoint));
         })
     }
 
@@ -93,7 +86,7 @@ export class MapStore extends Store {
         this.asyncCall(this.transport.createPoint(params))
             .then((response) => {
                 console.info("[MapStore.createPoint]", response);
-                const item = get(response, "data");
+                const item = this.convertPoint(get(response, "data"));
                 this.setItems([item]);
                 this.selectItem(item);
             })
@@ -107,7 +100,7 @@ export class MapStore extends Store {
         this.asyncCall(this.transport.updatePoint(this.selectedItem.id, data))
             .then((response) => {
                 console.info("[MapStore.editPoint]", response);
-                const item = get(response, "data");
+                const item = this.convertPoint(get(response, "data"));
                 const items = this.items.filter((value) => item.id !== value.id);
                 this.changeItems([...items, item]);
                 this.selectItem(item);
@@ -126,5 +119,14 @@ export class MapStore extends Store {
                 this.changeItems(items);
                 this.selectItem(void 0);
             })
+    }
+
+    private convertPoint(item: object) {
+        const {images = {}, ...rest} = (item as any)
+        const layers = images ? images.map((image: any, index: number) => new LayerData(image.url, `${index}`, image.title)) : []
+        return {
+            ...rest,
+            images: layers
+        }
     }
 }

@@ -32,3 +32,46 @@
 .filters {
   margin-right: 10px;
 }
+
+.layer-container {
+  padding: 5px;
+  display: flex;
+
+  .layer-image {
+    display: flex;
+
+    &__image {
+      display: block;
+      width: 300px;
+      height: auto;
+    }
+  }
+
+  .layer-list {
+    position: relative;
+    display: flex;
+    padding-left: 25px;
+
+    &_title {
+      z-index: 1000;
+    }
+
+    &__item {
+      background: url("./assets/layer.svg") no-repeat;
+      width: 160px;
+      height: 105px;
+      display: block;
+      position: absolute;
+
+      &[data-active=true] {
+        pointer-events: none;
+        background: url("./assets/layer_selected.svg") no-repeat;
+      }
+    }
+
+    &__title {
+      width: 150px;
+      margin-top: 20px;
+    }
+  }
+}
