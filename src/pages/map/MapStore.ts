@@ -1,5 +1,5 @@
 import {Store} from "../../entities/store";
-import {action, observable} from "mobx";
+import {action, computed, observable} from "mobx";
 import {IItem} from "./MapWrapper";
 import {get} from "lodash";
 import {EFormType} from "./interfaces";
@@ -7,7 +7,7 @@ import {Nullable} from "../../react-app-env";
 import {LayerData} from "../../entities/LayerData";
 
 export class MapStore extends Store {
-    @observable items: IItem[] = [];
+    @observable.deep items: IItem[] = [];
     @observable mode: EFormType = EFormType.NONE;
     @observable selectedItem: Nullable<IItem> = void 0;
     @observable curPos: number[] = [];
@@ -31,7 +31,8 @@ export class MapStore extends Store {
         this.filterSpecializations = values;
     }
 
-    getItems(): IItem[] {
+    @computed
+    get getItems(): IItem[] {
         return this.items
             .filter((item) => {
                 return !!(~this.filterTypes.indexOf(item.type));

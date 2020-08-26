@@ -91,7 +91,7 @@ export class MapWrapper extends Component<{}> {
                                 <Placemark geometry={this.store.curPos}/>
                             )}
                             <Clusterer>
-                                {this.store.getItems().map((item: IItem, index) => {
+                                {this.store.getItems.map((item: IItem, index) => {
                                     return (
                                         <Placemark
                                             key={index} geometry={[item.positionx, item.positiony]}
