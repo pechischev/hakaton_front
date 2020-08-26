@@ -1,10 +1,11 @@
 import {Store} from "../store";
 import {autobind} from "core-decorators";
 import {action, observable} from "mobx";
-import {IType} from "./index";
+import { IType } from "./index";
 import {ISpecialization} from "../specialization";
 import {AxiosResponse} from "axios";
 import {ISelectOption} from "../../components/fields";
+import { specializationsMock, typesMock } from "./const";
 
 @autobind
 export class InfoStore extends Store {
@@ -12,11 +13,11 @@ export class InfoStore extends Store {
     @observable specializations: ISpecialization[] = [];
 
     async getTypes() {
-        return this.asyncCall(this.transport.getTypes()).then(this.onGetTypes);
+        return this.onGetTypes();
     }
 
     async getSpecializations() {
-        return this.asyncCall(this.transport.getSpecialization()).then(this.onGetSpecializations);
+        return this.onGetSpecializations();
     }
 
     getOptionTypes(): ISelectOption[] {
@@ -32,26 +33,26 @@ export class InfoStore extends Store {
         if (!item) {
             return "#000000";
         }
-        return item.colour;
+        return item.colour ||  "#000000";
     }
 
     getPointIcon(id: number): string {
         const item = this.types.find((value) => value.id === id);
         if (!item) {
-            return "circle";
+            return "islands#circleIcon";
         }
-        return item.icon;
+        return item.icon || "islands#circleIcon";
     }
 
     @action.bound
-    private onGetTypes(response: AxiosResponse<IType[]>) {
+    private onGetTypes(response?: AxiosResponse<IType[]>) {
         console.info("[InfoStore.onGetTypes]", response);
-        this.types = response.data;
+        this.types = typesMock;
     }
 
     @action.bound
-    private onGetSpecializations(response: AxiosResponse<ISpecialization[]>) {
+    private onGetSpecializations(response?: AxiosResponse<ISpecialization[]>) {
         console.info("[InfoStore.onGetSpecializations]", response);
-        this.specializations = response.data;
+        this.specializations = specializationsMock;
     }
 }

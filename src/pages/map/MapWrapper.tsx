@@ -15,6 +15,7 @@ import {observer} from "mobx-react";
 import {InfoContext, UserContext} from "../../connector/AppContext";
 import {MapStore} from "./MapStore";
 import {Filters} from "./Filters";
+import { toJS } from "mobx";
 
 export interface IItem {
     id: number;
@@ -89,17 +90,20 @@ export class MapWrapper extends Component<{}> {
                                 <Placemark geometry={this.store.curPos}/>
                             )}
                             <Clusterer>
-                                {this.store.getItems().map((item: IItem, index) => {
+                                {this.store.getItems.map((item: IItem, index) => {
+                                    const jsItem = toJS(item)
+                                    console.log(jsItem)
                                     return (
                                         <Placemark
-                                            key={index} geometry={[item.positionx, item.positiony]}
+                                            key={index}
+                                            geometry={[jsItem.positionx, jsItem.positiony]}
                                             onClick={() => {
-                                                this.store.selectItem(item);
+                                                this.store.selectItem(jsItem);
                                                 this.store.setMode(EFormType.VIEW)
                                             }}
                                             options={{
-                                                preset: 'islands#circleIcon',
-                                                iconColor: InfoContext().getPointColor(item.specialization),
+                                                preset: InfoContext().getPointIcon(jsItem.type),
+                                                iconColor: InfoContext().getPointColor(jsItem.specialization),
                                             }}
                                         />
                                     )
