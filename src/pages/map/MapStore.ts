@@ -4,6 +4,7 @@ import {IItem} from "./MapWrapper";
 import {get} from "lodash";
 import {EFormType} from "./interfaces";
 import {Nullable} from "../../react-app-env";
+import {LayerData} from "../../entities/LayerData";
 
 export class MapStore extends Store {
     @observable items: IItem[] = [];
@@ -71,7 +72,14 @@ export class MapStore extends Store {
     getPoints() {
         this.asyncCall(this.transport.getPoints()).then((data) => {
             const items = get(data, "data", []);
-            this.setItems(items);
+            this.setItems(items.map((item: object) => {
+                const {images = {}, ...rest} = (item as any)
+                const layers = images ? images.map((image: any, index: number) => new LayerData(image.url, `${index}`, image.title)) : []
+                return {
+                    ...rest,
+                    images: layers
+                }
+            }));
         })
     }
 

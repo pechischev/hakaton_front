@@ -26,6 +26,8 @@ export interface IItem {
     info_action: string;
     scheme_number: string;
     status: number;
+    urls: [],
+    images: {},
     positionx: number;
     positiony: number;
 }
@@ -98,7 +100,7 @@ export class MapWrapper extends Component<{}> {
                                                 this.store.setMode(EFormType.VIEW)
                                             }}
                                             options={{
-                                                preset: 'islands#circleIcon',
+                                                preset: InfoContext().getPointIcon(item.type),
                                                 iconColor: InfoContext().getPointColor(item.specialization),
                                             }}
                                         />

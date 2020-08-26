@@ -12,7 +12,7 @@ export interface IInnerForm extends React.HTMLAttributes<HTMLDivElement> {
 export const InnerForm = (props: IInnerForm) => {
     const {show = false, title, children, onClose, ...rest} = props;
     return (
-        <Paper elevation={2} {...rest} style={ {display: show ? "" : "none", padding: 20} } >
+        <Paper elevation={2} {...rest} style={ {display: show ? "" : "none", padding: 20, overflow: 'auto'} } >
             <div>
                 <IconButton onClick={onClose} style={{float: "left", marginLeft: -7}}>
                     <CloseIcon/>

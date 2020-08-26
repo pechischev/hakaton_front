@@ -1,13 +1,14 @@
 
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
-import { get } from "lodash";
+import _, { get } from "lodash";
 import { PartialObserver, Subject, Unsubscribable } from "rxjs";
 import {Nullable} from "../react-app-env";
 import {UserContext} from "./AppContext";
+import {LayerData} from "../entities/LayerData";
 
 export class Transport<T extends object = object> {
     private static BASE_URL: string;
-    private static readonly DEFAULT_URL = "http://yola.space";
+    private static readonly DEFAULT_URL = "http://localhost:3000/api";
     private readonly client = axios.create({
         baseURL: Transport.BASE_URL,
         withCredentials: true
@@ -86,26 +87,40 @@ export class Transport<T extends object = object> {
     }
 
     getTypes(): Promise<any> {
-        return this.client.get("/point/get-types");
+        return this.client.get("/points/types");
     }
 
     getSpecialization(): Promise<any> {
-        return this.client.get("/point/get-specializations");
+        return this.client.get("/points/specializations");
     }
 
     getPoints(): Promise<any> {
-        return this.client.get("/point");
+        return this.client.get("/points");
     }
 
     createPoint(data: any): Promise<any> {
-        return this.client.post("/point/create", data);
+        const { images, ...rest } = data
+        const urls = _.values(images).map((image: LayerData) => {
+            return {
+                url: image.getImage(),
+                title: image.getTitle(),
+            }
+        })
+        return this.client.post("/points", {...rest, images: urls });
     }
 
     updatePoint(id: number, data: any): Promise<any> {
-        return this.client.put(`/point/update?id=${id}`, data)
+        const { images, ...rest } = data
+        const urls = _.values(images).map((image: LayerData) => {
+            return {
+                url: image.getImage(),
+                title: image.getTitle(),
+            }
+        })
+        return this.client.put(`/points/${id}`, {...rest, images: urls })
     }
 
     removePoint(id: number): Promise<any> {
-        return this.client.delete(`/point/delete?id=${id}`)
+        return this.client.delete(`/points/${id}`)
     }
 }

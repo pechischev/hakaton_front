@@ -32,15 +32,15 @@ export class InfoStore extends Store {
         if (!item) {
             return "#000000";
         }
-        return item.colour;
+        return item.colour || "#000000";
     }
 
     getPointIcon(id: number): string {
         const item = this.types.find((value) => value.id === id);
         if (!item) {
-            return "circle";
+            return 'islands#circleIcon';
         }
-        return item.icon;
+        return item.icon || 'islands#circleIcon';
     }
 
     @action.bound

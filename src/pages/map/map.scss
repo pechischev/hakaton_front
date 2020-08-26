@@ -10,12 +10,14 @@
   bottom: 0;
   width: 550px;
   pointer-events: all;
-  height: auto;
-  overflow: hidden;
+  height: 100%;
+  overflow: auto;
 
   & > div {
     position: relative;
-    height: 100vh;
+    min-height: 100vh;
+    padding-bottom: 0 !important;
+    padding-top: 0 !important;
   }
 }
 
